@@ -21,7 +21,6 @@ SetTitleMatchMode, 2
 <^Space::Send, {Enter}	; LCtrl+Space = Enter (Return)
 
 PrintScreen::Send, #+s
-; >^PrintScreen::Send, {F14}
 
 >^PrintScreen::
 {

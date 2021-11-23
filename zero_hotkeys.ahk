@@ -7,6 +7,9 @@ GroupAdd, players, ahk_exe vlc.exe
 GroupAdd, players, ahk_exe Spotify.exe
 GroupAdd, players, YouTube
 
+GroupAdd, code_editors, ahk_exe sublime_text.exe
+GroupAdd, code_editors, notepad++.exe
+
 SetTitleMatchMode, 2
 
 ; Notes
@@ -18,7 +21,19 @@ SetTitleMatchMode, 2
 ; # = Windows
 
 ; Hotkeys
-<^Space::Send, {Enter}	; LCtrl+Space = Enter (Return)
+
+#IfWinActive ahk_group players
+	F10::Send {Volume_Mute}
+	F11::Send {Volume_Down}
+	F12::Send {Volume_Up}
+
+#IfWinNotActive ahk_group code_editors
+	<^Space::Send, {Enter}	; LCtrl+Space = Enter (Return)
+
+#IfWinActive ahk_class CabinetWClass
+	Media_Play_Pause::F19
+
+#IfWinActive
 
 PrintScreen::Send, #+s
 
@@ -48,16 +63,13 @@ PrintScreen::Send, #+s
 }
 
 Pause::Media_Play_Pause
-; Disable the "Play/Pause" media control on Explorer windows
-; if WinActive("ahk_class CabinetWClass") {
-; 	Media_Play_Pause::F19
-; 	return
-; }
 
-; <^>!d::Run C:\Users\ASUS\Downloads
 <^>!d::Run Downloads
 
 <^>!a::Run edit zero_hotkeys.ahk
+<^>!z::Reload
+
+<^>!p::Run putty.exe -load "piZero" -pw "pizero!",, Max
 
 <^>!Insert::Winset, Alwaysontop,,A
 
@@ -84,32 +96,10 @@ Pause::Media_Play_Pause
 }
 
 
-F10::
-{
-	if (WinActive("ahk_exe vlc.exe") or WinActive("ahk_exe Spotify.exe")){
-		Send {Volume_Mute}
-	}
-	return
-}
-F11::
-{
-	if WinActive("ahk_group players"){
-		Send {Volume_Down}
-	}
-	return
-}
-F12::
-{
-	if WinActive("ahk_group players"){
-		Send {Volume_Up}
-	}
-	return
-}
-
 ; Shortcuts
 <^>!n::Run notepad++.exe
 <^>!f::Run foobar2000.exe
-<^>!p::Run putty.exe
+; <^>!p::Run putty.exe
 <^>!s::Run SpeQ Mathematics.exe
 <^>!v::Run C:\Program Files (x86)\Vial\Vial.exe
 <^>!k::Run C:\Program Files\KiCad\bin\kicad.exe
@@ -118,5 +108,5 @@ F12::
 <^>!o::Run opera.exe
 <^>!i::Run C:\Program Files\Inkscape\bin\inkscape.exe
 <^>!t::Run C:\Program Files\Sublime Text\sublime_text.exe
-<^>!g::Run C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Git\Git Bash
+<^>!g::Run C:\Program Files\Git\git-bash.exe --cd-to-home
 <^>!y::Run C:\Users\ASUS\AppData\Roaming\Spotify\Spotify.exe

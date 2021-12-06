@@ -111,7 +111,29 @@ Pause::Media_Play_Pause
 
 <^>!n::Run notepad++.exe
 <^>!f::Run foobar2000.exe
-<^>!p::Run putty.exe -load "piZero" -pw "pizero!",, Max
+<^>!p::
+{
+	profile := ""
+	passw := ""
+	Loop, read, zeroAHK_data.txt
+	{
+		field_array := StrSplit(A_LoopReadLine, ",")
+		if (field_array[1] == "putty")
+		{
+			TrayTip, Title, text, , 17
+			profile := field_array[2]
+			passw := field_array[4]
+			break
+		}
+	}
+
+	if (profile != "" and passw != "")
+	{
+		winActivate, ahk_class Shell_TrayWnd
+		Run putty.exe -load %profile% -pw %passw%,, Max
+	}
+	return
+}
 <^>!o::Run opera.exe
 <^>!s::Run SpeQ Mathematics.exe
 <^>!v::Run C:\Program Files (x86)\Vial\Vial.exe

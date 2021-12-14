@@ -3,25 +3,27 @@
 SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 
+; 2 = A window's title can contain <name> anywhere inside it to be a match
 SetTitleMatchMode, 2
 
 ;-------------------------------------------------------------------------
 ; Groups
 ;-------------------------------------------------------------------------
 
+; Group - Audio and Video applications
 GroupAdd, players, ahk_exe vlc.exe
 GroupAdd, players, ahk_exe Spotify.exe
 GroupAdd, players, YouTube
 
-GroupAdd, code_editors, ahk_exe sublime_text.exe
-GroupAdd, code_editors, notepad++.exe
+; Group - Text editors
+GroupAdd, text_editors, ahk_exe sublime_text.exe
+GroupAdd, text_editors, ahk_exe notepad++.exe
 
 ;-------------------------------------------------------------------------
 ; Notes
 ;-------------------------------------------------------------------------
 
 ; TrayTip [, Title, Text, Seconds, Options] -> TrayTip, Title, text, , 17
-
 ; <+ = Left Shift
 ; ^ = Ctrl
 ; >! = Right Alt
@@ -32,32 +34,69 @@ GroupAdd, code_editors, notepad++.exe
 ; Context-sensitive Hotkeys
 ;-------------------------------------------------------------------------
 
+; If active window is a audio/video player
 #IfWinActive ahk_group players
 	F10::Send {Volume_Mute}
 	F11::Send {Volume_Down}
 	F12::Send {Volume_Up}
-#IfWinNotActive ahk_group code_editors
-	<^Space::Send, {Enter}	; LCtrl+Space = Enter (Return)
+
+; If active window is not a text editor
+#IfWinNotActive ahk_group text_editors
+	; LCtrl+Space = Enter (Return)
+	<^Space::Send {Enter}
+
+; If windows file explorer is focused
 #IfWinActive ahk_class CabinetWClass
 	Media_Play_Pause::F19
+
+; Disable context sensitivity
 #IfWinActive
 
 ;-------------------------------------------------------------------------
 ; General Hotkeys
 ;-------------------------------------------------------------------------
 
+; PrintScreen triggers the Snipping tool
 PrintScreen::Send, #+s
 
 Pause::Media_Play_Pause
 
+; AltGr + d = Open the downloads folder in windows file explorer
 <^>!d::Run Downloads
 
+; AltGr + a = Edit this script
 <^>!a::Run edit zero_hotkeys.ahk
-
+; AltGr + z = Reload this script
 <^>!z::Reload
 
+; AltGr + Insert = Set the current focused window to always be on top
 <^>!Insert::Winset, Alwaysontop,,A
 
+; LWin + 1 = Second display only
+<#1::
+{
+	Send #p
+	Sleep, 1000
+	Send {Down}
+	Send, {Enter}
+	Sleep, 1000
+	Send, {Escape}
+	return
+}
+
+; LWin + 2 = Extend screen to 2 displays
+<#2::
+{
+	Send #p
+	Sleep, 1000
+	Send, {Up}
+	Send, {Enter}
+	Sleep, 1000
+	Send, {Escape}
+	return
+}
+
+; RCtrl + PrintScreen = Put the computer to sleep
 >^PrintScreen::
 {
 	Send, #x
@@ -70,6 +109,7 @@ Pause::Media_Play_Pause
 	return
 }
 
+; LWin + Esc = Shut down computer
 <#Esc::
 {
 	Send, #x
@@ -83,59 +123,42 @@ Pause::Media_Play_Pause
 	return
 }
 
-<#1::
-{
-	Send #p
-	Sleep, 1000
-	Send {Down}
-	Send, {Enter}
-	Sleep, 1000
-	Send, {Escape}
-	return
-}
-
-<#2::
-{
-	Send #p
-	Sleep, 1000
-	Send, {Up}
-	Send, {Enter}
-	Sleep, 1000
-	Send, {Escape}
-	return
-}
-
 ;-------------------------------------------------------------------------
-; Shortcuts
+; Shortcuts (<^>! is AltGr)
 ;-------------------------------------------------------------------------
 
 <^>!n::Run notepad++.exe
 <^>!f::Run foobar2000.exe
 <^>!p::
 {
-	profile := ""
-	passw := ""
-	Loop, read, zeroAHK_data.txt
-	{
-		field_array := StrSplit(A_LoopReadLine, ",")
-		if (field_array[1] == "putty")
+	if (A_TimeSincePriorHotkey > 500){
+		; if p was not double tapped
+		Run putty.exe
+	} else {
+		; p was double tapped
+		KeyWait, RAlt
+		profile := ""
+		passw := ""
+		Loop, read, zero_ahk_data.txt
 		{
-			TrayTip, Title, text, , 17
-			profile := field_array[2]
-			passw := field_array[4]
-			break
+			field_array := StrSplit(A_LoopReadLine, ",")
+			if (field_array[1] == "putty")
+			{
+				profile := field_array[2]
+				passw := field_array[4]
+				break
+			}
 		}
-	}
 
-	if (profile != "" and passw != "")
-	{
-		winActivate, ahk_class Shell_TrayWnd
-		Run putty.exe -load %profile% -pw %passw%,, Max
+		if (profile != "" and passw != "")
+		{
+			Run putty.exe -load %profile% -pw %passw%,, Max
+		}
 	}
 	return
 }
-<^>!o::Run opera.exe
 <^>!s::Run SpeQ Mathematics.exe
+<^>!o::Run opera.exe
 <^>!v::Run C:\Program Files (x86)\Vial\Vial.exe
 <^>!k::Run C:\Program Files\KiCad\bin\kicad.exe
 <^>!c::Run C:\Program Files\FreeCAD 0.19\bin\FreeCAD.exe
